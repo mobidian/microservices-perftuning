@@ -1,0 +1,65 @@
+#  ------------------------------------------------------------
+#   Copyright (c) Microsoft Corporation.  All rights reserved.
+#   Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+#  ------------------------------------------------------------
+
+###################################################################################################
+# ingress
+###################################################################################################
+{{- $svcversion := .Chart.AppVersion | replace "." "" }}
+{{- $appversion := .Chart.AppVersion }}
+{{- $defaultversionedpath := printf "/%s/" $appversion }}
+{{- $relname := .Release.Name }}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ $relname }}-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/server-snippet: |
+      location = /api/invoices {
+        content_by_lua_block {
+          local cjson = require "cjson"
+
+          local query = ngx.encode_args(ngx.req.get_uri_args())
+
+          local requests = {}
+          table.insert(requests, {"/api/internal/deliveries/summary?" .. query, { method = ngx.HTTP_GET}})
+          table.insert(requests, {"/api/internal/dronedeliveries/utilization?" .. query, { method = ngx.HTTP_GET}})
+          table.insert(requests, {"/api/internal/packages/summary?" .. query, { method = ngx.HTTP_GET}})
+
+          local results = {}
+          local resps = { ngx.location.capture_multi(requests) }
+
+          local result = { 
+            deliveries = cjson.decode(resps[1].body),
+            drones = cjson.decode(resps[2].body),
+            packages = cjson.decode(resps[3].body)
+          }
+          ngx.say(cjson.encode(result))
+        }
+      }
+spec:
+  {{- if .Values.ingress.tls }}
+  tls:
+  {{- range .Values.ingress.hosts }}
+  {{- if .tls }}
+  - hosts:
+    - {{ .name }}
+    secretName: {{ $relname }}-{{ .tlsSecretName }}
+  {{- end }}
+  {{- end }}
+  {{- end }}
+  rules:
+  {{- range .Values.ingress.hosts }}
+  - host: {{ .name }}
+    http:
+      paths:
+      {{ if .path }}
+      - path: {{ printf "%s/%s/" .path $appversion }}api/ignored
+      {{ else }}
+      - path: {{ $defaultversionedpath }}api/ignored
+      {{ end }}
+        backend:
+          serviceName: "ignored"
+          servicePort: http
+  {{ end }}
