@@ -18,23 +18,51 @@ metadata:
     nginx.ingress.kubernetes.io/server-snippet: |
       location = /api/invoices {
         content_by_lua_block {
-          local cjson = require "cjson"
 
-          local query = ngx.encode_args(ngx.req.get_uri_args())
+          local function retrieve_location(path, arguments)
+            local cjson = require "cjson.safe"
+            
+            local response = ngx.location.capture(path, { method = ngx.HTTP_GET, args = arguments })
 
-          local requests = {}
-          table.insert(requests, {"/api/internal/deliveries/summary?" .. query, { method = ngx.HTTP_GET}})
-          table.insert(requests, {"/api/internal/dronedeliveries/utilization?" .. query, { method = ngx.HTTP_GET}})
-          table.insert(requests, {"/api/internal/packages/summary?" .. query, { method = ngx.HTTP_GET}})
+            if(response.status ~= ngx.HTTP_OK) then
+              ngx.log(ngx.WARN, "Unexpected status for ", path, ": ", response.status)
+              return
+            end
 
-          local results = {}
-          local resps = { ngx.location.capture_multi(requests) }
+            if(response.truncated) then
+              ngx.log(ngx.WARN, "Truncated response for ", path)
+              return
+            end
+
+            local payload, error = cjson.decode(response.body)
+
+            if(error) then
+              ngx.log(ngx.WARN, "Invalid payload for ", path, ": ", error)
+              return
+            end
+
+            return payload
+          end
+
+          local cjson = require "cjson.safe"
+          local arguments = ngx.req.get_uri_args()
+
+          -- TODO add checks for errors on spawn
+          local delivery_req = ngx.thread.spawn(retrieve_location, "/api/internal/deliveries/summary",  arguments)
+          local drone_req = ngx.thread.spawn(retrieve_location, "/api/internal/dronedeliveries/utilization", arguments)
+          local packages_req = ngx.thread.spawn(retrieve_location, "/api/internal/packages/summary", arguments)
+
+          -- TODO add checks for errors on wait
+          local delivery_ok, delivery_resp = ngx.thread.wait(delivery_req)
+          local drone_ok, drone_resp = ngx.thread.wait(drone_req)
+          local drone_ok, packages_resp = ngx.thread.wait(packages_req)
 
           local result = { 
-            deliveries = cjson.decode(resps[1].body),
-            drones = cjson.decode(resps[2].body),
-            packages = cjson.decode(resps[3].body)
+            deliveries = delivery_resp,
+            drones = drone_resp,
+            packages = packages_resp
           }
+
           ngx.say(cjson.encode(result))
         }
       }
