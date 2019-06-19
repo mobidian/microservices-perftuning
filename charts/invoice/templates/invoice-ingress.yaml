@@ -19,44 +19,89 @@ metadata:
       location = /api/invoices {
         content_by_lua_block {
 
-          local function retrieve_location(path, arguments)
+          local function retrieve_location(path, arguments, request_id)
             local cjson = require "cjson.safe"
+            local max_attempts = 3
+            local current_attempt = 0
             
-            local response = ngx.location.capture(path, { method = ngx.HTTP_GET, args = arguments })
+            repeat
+              current_attempt = current_attempt + 1
 
-            if(response.status ~= ngx.HTTP_OK) then
-              ngx.log(ngx.WARN, "Unexpected status for ", path, ": ", response.status)
-              return
-            end
+              ngx.req.set_header("Request-Id", request_id)
+              local response = ngx.location.capture(path, { method = ngx.HTTP_GET, args = arguments })
+              ngx.req.clear_header("Request-Id")
 
-            if(response.truncated) then
-              ngx.log(ngx.WARN, "Truncated response for ", path)
-              return
-            end
+              if (response.status == ngx.HTTP_OK) then
+                if (response.truncated) then
+                  ngx.log(ngx.WARN, "Truncated response for ", path)
+                  return
+                end
 
-            local payload, error = cjson.decode(response.body)
+                local payload, error = cjson.decode(response.body)
 
-            if(error) then
-              ngx.log(ngx.WARN, "Invalid payload for ", path, ": ", error)
-              return
-            end
+                if (error) then
+                  ngx.log(ngx.WARN, "Invalid payload for ", path, ": ", error)
+                  return
+                end
 
-            return payload
+                return payload
+              end
+
+              if (not (response.status == ngx.HTTP_INTERNAL_SERVER_ERROR or response.status == ngx.HTTP_BAD_GATEWAY or response.status == ngx.HTTP_SERVICE_UNAVAILABLE)) then
+                ngx.log(ngx.WARN, "Error for ", path, " status: ", response.status)
+                return
+              end
+
+              if (current_attempt < max_attempts) then
+                local retry_delay = 2 * current_attempt
+                ngx.log(ngx.WARN, "Retrying after attempt ", current_attempt, " after ", retry_delay, "s for ", path, " status: ", response.status)
+                ngx.sleep(retry_delay)
+              end
+            until current_attempt == max_attempts
+
+            ngx.log(ngx.WARN, "Failed to retrieve ", path)
           end
 
           local cjson = require "cjson.safe"
+          local spawn = ngx.thread.spawn
+          local wait = ngx.thread.wait
+
+          -- Setup request id per the spec https://github.com/dotnet/corefx/blob/master/src/System.Diagnostics.DiagnosticSource/src/HierarchicalRequestId.md
+          local ngx_request_id = ngx.var.request_id
+          local request_id_header = ngx.req.get_headers()["Request-Id"]
+          local request_id
+          if (request_id_header) then
+            request_id = request_id_header .. ngx_request_id .. "_"
+          else
+            request_id = "|" .. ngx_request_id .. "."
+          end
+
+          ngx.log(ngx.NOTICE, "Processing request ", request_id)
+
           local arguments = ngx.req.get_uri_args()
 
-          -- TODO add checks for errors on spawn
-          local delivery_req = ngx.thread.spawn(retrieve_location, "/api/internal/deliveries/summary",  arguments)
-          local drone_req = ngx.thread.spawn(retrieve_location, "/api/internal/dronedeliveries/utilization", arguments)
-          local packages_req = ngx.thread.spawn(retrieve_location, "/api/internal/packages/summary", arguments)
+          -- Launch all requests in parallel
+          local delivery_req = spawn(retrieve_location, "/api/internal/deliveries/summary",  arguments, request_id .. "1.")
+          local drone_req = spawn(retrieve_location, "/api/internal/dronedeliveries/utilization", arguments, request_id .. "2.")
+          local packages_req = spawn(retrieve_location, "/api/internal/packages/summary", arguments, request_id .. "3.")
 
-          -- TODO add checks for errors on wait
-          local delivery_ok, delivery_resp = ngx.thread.wait(delivery_req)
-          local drone_ok, drone_resp = ngx.thread.wait(drone_req)
-          local drone_ok, packages_resp = ngx.thread.wait(packages_req)
+          -- Obtain results from requests
+          local delivery_ok, delivery_resp = wait(delivery_req)
+          if (not delivery_ok) then
+              ngx.log(ngx.WARN, "Failed to request delivery information")
+          end
 
+          local drone_ok, drone_resp = wait(drone_req)
+          if (not drone_ok) then
+              ngx.log(ngx.WARN, "Failed to request drone information")
+          end
+
+          local packages_ok, packages_resp = wait(packages_req)
+          if (not packages_ok) then
+              ngx.log(ngx.WARN, "Failed to request packages information")
+          end
+
+          -- Prepare consolidated result
           local result = { 
             deliveries = delivery_resp,
             drones = drone_resp,
