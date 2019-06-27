@@ -1,0 +1,4 @@
+[submodule "microservices-reference-implementation"]
+	path = microservices-reference-implementation
+	url = pnp@vs-ssh.visualstudio.com:v3/pnp/roadmap/aks-ra
+	branch = perf
