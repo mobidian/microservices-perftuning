@@ -1,0 +1,4 @@
+[submodule "microservices-reference-implementation"]
+	path = microservices-reference-implementation
+	url = https://github.com/mspnp/microservices-reference-implementation.git
+	branch = perf
