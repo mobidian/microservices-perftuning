@@ -1,14 +1,16 @@
 # Microservices performance tuning
 Microsoft patterns & practices
 
-This reference implementation shows the process for a performance analysis of a microservices architecture. The application runs on Azure Kubernetes Service and is decribed in more detail [here](https://docs.microsoft.com/azure/architecture/microservices/design/). 
+This reference implementation shows the process for a performance analysis of a microservices architecture. The application runs on Azure Kubernetes Service and is decribed in more detail [here](https://docs.microsoft.com/azure/architecture/microservices/design/).
 
-Scenario: A client application sends an HTTP GET request to retreive an invoicing report. On the backend, a reverse proxy (nginx) fans out the query to several backend services. One of these services is not performing well. 
+Scenario: A client application sends an HTTP GET request to retreive an invoicing report. On the backend, a reverse proxy (nginx) fans out the query to several backend services. One of these services is not performing well.
 
-This repo contains a set of load tests that stress the application. The remainder of this document describes the steps to identify and remove the bottlenecks. 
+This repo contains a set of load tests that stress the application. The remainder of this document describes the steps to identify and remove the bottlenecks.
 
 > **DISCLAIMER:**
 > Running these load tests will incur charges against your Azure account. Please be aware of these charges and understand any activity against the Azure instance will result in fees.
+
+![](./imgs/azure-dashboard-droneutilization.png)
 
 ## Deploying the Reference Implementation
 
