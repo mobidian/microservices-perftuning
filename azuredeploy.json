@@ -1,0 +1,1678 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "droneSchedulerCosmosDbName": {
+            "type": "String"
+        },
+        "workspaceId": {
+            "type": "String"
+        },
+        "clusterName": {
+            "type": "String"
+        },
+        "appInsightsName": {
+            "type": "String"
+        }
+    },
+    "variables": {
+        "droneSchedulerCosmosDbId": "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('droneSchedulerCosmosDbName'))]",
+        "aksId": "[resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName'))]",
+        "appInsightsId": "[resourceId('Microsoft.Insights/components', parameters('appInsightsName'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Portal/dashboards",
+            "apiVersion": "2015-08-01-preview",
+            "name": "fabrikam-monitoring",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "hidden-title": "Fabrikam Monitoring Dashboard"
+            },
+            "properties": {
+                "lenses": {
+                    "0": {
+                        "order": 0,
+                        "parts": {
+                            "0": {
+                                "position": {
+                                    "x": 0,
+                                    "y": 0,
+                                    "rowSpan": 1,
+                                    "colSpan": 7
+                                },
+                                "metadata": {
+                                    "inputs": [],
+                                    "type": "Extension/HubsExtension/PartType/MarkdownPart",
+                                    "settings": {
+                                        "content": {
+                                            "settings": {
+                                                "content": "# Application",
+                                                "title": "",
+                                                "subtitle": ""
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "1": {
+                                "position": {
+                                    "x": 7,
+                                    "y": 0,
+                                    "rowSpan": 1,
+                                    "colSpan": 1
+                                },
+                                "metadata": {
+                                    "inputs": [
+                                        {
+                                            "name": "ComponentId",
+                                            "value": "[variables('appInsightsId')]"
+                                        },
+                                        {
+                                            "name": "MainResourceId",
+                                            "isOptional": true
+                                        },
+                                        {
+                                            "name": "ResourceIds",
+                                            "isOptional": true
+                                        },
+                                        {
+                                            "name": "TimeContext",
+                                            "value": {
+                                                "durationMs": 604800000,
+                                                "createdTime": "2019-07-23T15:38:08.95Z",
+                                                "isInitialTime": false,
+                                                "grain": 1,
+                                                "useDashboardTimeRange": false
+                                            },
+                                            "isOptional": true
+                                        },
+                                        {
+                                            "name": "ConfigurationId",
+                                            "value": "20523699-ca56-4cd1-b437-02c91759396f",
+                                            "isOptional": true
+                                        },
+                                        {
+                                            "name": "DataModel",
+                                            "value": {
+                                                "timeContext": {
+                                                    "durationMs": 604800000,
+                                                    "createdTime": "2019-07-23T15:38:08.95Z",
+                                                    "isInitialTime": false,
+                                                    "grain": 1,
+                                                    "useDashboardTimeRange": false
+                                                },
+                                                "layoutOption": "Organic"
+                                            },
+                                            "isOptional": true
+                                        },
+                                        {
+                                            "name": "UseCallerTimeContext",
+                                            "isOptional": true
+                                        },
+                                        {
+                                            "name": "OverrideSettings",
+                                            "isOptional": true
+                                        },
+                                        {
+                                            "name": "PartId",
+                                            "isOptional": true
+                                        }
+                                    ],
+                                    "type": "Extension/AppInsightsExtension/PartType/ApplicationMapPart",
+                                    "settings": {
+                                        "content": {
+                                            "layout": "Hierarchical",
+                                            "DataModelJSON": "{}"
+                                        }
+                                    },
+                                    "asset": {
+                                        "idInputName": "ComponentId",
+                                        "type": "ApplicationInsights"
+                                    },
+                                    "defaultMenuItemId": "applicationMap"
+                                }
+                            },
+                            "2": {
+                                "position": {
+                                    "x": 8,
+                                    "y": 0,
+                                    "rowSpan": 1,
+                                    "colSpan": 1
+                                },
+                                "metadata": {
+                                    "inputs": [
+                                        {
+                                            "name": "ComponentId",
+                                            "value": {
+                                                "Name": "[parameters('appInsightsName')]",
+                                                "SubscriptionId": "[subscription().subscriptionId]",
+                                                "ResourceGroup": "[resourceGroup().name]"
+                                            }
+                                        },
+                                        {
+                                            "name": "ResourceId",
+                                            "value": "[variables('appInsightsId')]"
+                                        }
+                                    ],
+                                    "type": "Extension/AppInsightsExtension/PartType/QuickPulseButtonSmallPart",
+                                    "asset": {
+                                        "idInputName": "ComponentId",
+                                        "type": "ApplicationInsights"
+                                    }
+                                }
+                            },
+                            "3": {
+                                "position": {
+                                    "x": 9,
+                                    "y": 0,
+                                    "rowSpan": 1,
+                                    "colSpan": 10
+                                },
+                                "metadata": {
+                                    "inputs": [],
+                                    "type": "Extension/HubsExtension/PartType/MarkdownPart",
+                                    "settings": {
+                                        "content": {
+                                            "settings": {
+                                                "content": "# Infrastructure",
+                                                "title": "",
+                                                "subtitle": ""
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "4": {
+                                "position": {
+                                    "x": 0,
+                                    "y": 1,
+                                    "rowSpan": 1,
+                                    "colSpan": 4
+                                },
+                                "metadata": {
+                                    "inputs": [],
+                                    "type": "Extension/HubsExtension/PartType/MarkdownPart",
+                                    "settings": {
+                                        "content": {
+                                            "settings": {
+                                                "content": "## Usage",
+                                                "title": "",
+                                                "subtitle": ""
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "5": {
+                                "position": {
+                                    "x": 4,
+                                    "y": 1,
+                                    "rowSpan": 1,
+                                    "colSpan": 1
+                                },
+                                "metadata": {
+                                    "inputs": [
+                                        {
+                                            "name": "initiator",
+                                            "value": "AnalyticsPinnedPart"
+                                        },
+                                        {
+                                            "name": "scope",
+                                            "value": {
+                                                "resources": [
+                                                    {
+                                                        "resourceId": "[variables('appInsightsId')]"
+                                                    }
+                                                ]
+                                            },
+                                            "isOptional": true
+                                        },
+                                        {
+                                            "name": "cachedResourceType",
+                                            "isOptional": true
+                                        },
+                                        {
+                                            "name": "workspaceResourceId",
+                                            "isOptional": true
+                                        },
+                                        {
+                                            "name": "query",
+                                            "isOptional": true
+                                        },
+                                        {
+                                            "name": "isQueryBase64Compressed",
+                                            "isOptional": true
+                                        },
+                                        {
+                                            "name": "timespanInIsoFormat",
+                                            "isOptional": true
+                                        },
+                                        {
+                                            "name": "isQueryEditorVisible",
+                                            "value": true,
+                                            "isOptional": true
+                                        },
+                                        {
+                                            "name": "environment",
+                                            "isOptional": true
+                                        },
+                                        {
+                                            "name": "telemetryInfo",
+                                            "isOptional": true
+                                        }
+                                    ],
+                                    "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/AnalyticsPart"
+                                }
+                            },
+                            "6": {
+                                "position": {
+                                    "x": 5,
+                                    "y": 1,
+                                    "rowSpan": 1,
+                                    "colSpan": 3
+                                },
+                                "metadata": {
+                                    "inputs": [],
+                                    "type": "Extension/HubsExtension/PartType/MarkdownPart",
+                                    "settings": {
+                                        "content": {
+                                            "settings": {
+                                                "content": "## Reliability",
+                                                "title": "",
+                                                "subtitle": ""
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "7": {
+                                "position": {
+                                    "x": 8,
+                                    "y": 1,
+                                    "rowSpan": 1,
+                                    "colSpan": 1
+                                },
+                                "metadata": {
+                                    "inputs": [
+                                        {
+                                            "name": "ResourceId",
+                                            "value": "[variables('appInsightsId')]"
+                                        }
+                                    ],
+                                    "type": "Extension/AppInsightsExtension/PartType/CuratedBladeFailuresPinnedPart",
+                                    "isAdapter": true,
+                                    "asset": {
+                                        "idInputName": "ResourceId",
+                                        "type": "ApplicationInsights"
+                                    }
+                                }
+                            },
+                            "8": {
+                                "position": {
+                                    "x": 9,
+                                    "y": 1,
+                                    "rowSpan": 2,
+                                    "colSpan": 10
+                                },
+                                "metadata": {
+                                    "inputs": [
+                                        {
+                                            "name": "sharedTimeRange",
+                                            "isOptional": true
+                                        },
+                                        {
+                                            "name": "options",
+                                            "value": {
+                                                "chart": {
+                                                    "metrics": [
+                                                        {
+                                                            "resourceMetadata": {
+                                                                "id": "[variables('aksId')]"
+                                                            },
+                                                            "name": "kube_pod_status_ready",
+                                                            "aggregationType": 1,
+                                                            "namespace": "microsoft.containerservice/managedclusters",
+                                                            "metricVisualization": {
+                                                                "displayName": "Number of pods in Ready state"
+                                                            }
+                                                        }
+                                                    ],
+                                                    "title": "Sum Number of pods in Ready state",
+                                                    "visualization": {
+                                                        "chartType": 2,
+                                                        "legendVisualization": {
+                                                            "isVisible": true,
+                                                            "position": 2,
+                                                            "hideSubtitle": false
+                                                        },
+                                                        "axisVisualization": {
+                                                            "x": {
+                                                                "isVisible": true,
+                                                                "axisType": 2
+                                                            },
+                                                            "y": {
+                                                                "isVisible": true,
+                                                                "axisType": 1
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                "version": 2
+                                            },
+                                            "isOptional": true
+                                        }
+                                    ],
+                                    "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+                                    "settings": {
+                                        "content": {
+                                            "options": {
+                                                "chart": {
+                                                    "metrics": [
+                                                        {
+                                                            "resourceMetadata": {
+                                                                "id": "[variables('aksId')]"
+                                                            },
+                                                            "name": "kube_pod_status_phase",
+                                                            "aggregationType": 1,
+                                                            "namespace": "microsoft.containerservice/managedclusters",
+                                                            "metricVisualization": {
+                                                                "displayName": "Number of pods by phase"
+                                                            }
+                                                        }
+                                                    ],
+                                                    "title": "AKS backend namespace",
+                                                    "visualization": {
+                                                        "chartType": 2,
+                                                        "legendVisualization": {
+                                                            "isVisible": true,
+                                                            "position": 2,
+                                                            "hideSubtitle": false
+                                                        },
+                                                        "axisVisualization": {
+                                                            "x": {
+                                                                "isVisible": true,
+                                                                "axisType": 3
+                                                            },
+                                                            "y": {
+                                                                "isVisible": true,
+                                                                "axisType": 1
+                                                            }
+                                                        },
+                                                        "disablePinning": true
+                                                    },
+                                                    "filterCollection": {
+                                                        "filters": [
+                                                            {
+                                                                "key": "namespace",
+                                                                "operator": 0,
+                                                                "values": [
+                                                                    "backend-dev"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    },
+                                                    "grouping": {
+                                                        "dimension": "phase"
+                                                    }
+                                                },
+                                                "version": 2
+                                            }
+                                        }
+                                    },
+                                    "filters": {
+                                        "namespace": {
+                                            "model": {
+                                                "operator": "equals",
+                                                "values": [
+                                                    "backend-dev"
+                                                ]
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "9": {
+                                "position": {
+                                    "x": 0,
+                                    "y": 2,
+                                    "rowSpan": 2,
+                                    "colSpan": 5
+                                },
+                                "metadata": {
+                                    "inputs": [
+                                        {
+                                            "name": "sharedTimeRange",
+                                            "isOptional": true
+                                        },
+                                        {
+                                            "name": "options",
+                                            "value": {
+                                                "chart": {
+                                                    "metrics": [
+                                                        {
+                                                            "resourceMetadata": {
+                                                                "id": "[variables('appInsightsId')]"
+                                                            },
+                                                            "name": "requests/count",
+                                                            "aggregationType": 7,
+                                                            "namespace": "microsoft.insights/components",
+                                                            "metricVisualization": {
+                                                                "resourceDisplayName": "[parameters('appInsightsName')]",
+                                                                "color": "#00BCF2"
+                                                            }
+                                                        }
+                                                    ],
+                                                    "title": "Server requests",
+                                                    "visualization": {
+                                                        "chartType": 3
+                                                    },
+                                                    "openBladeOnClick": {
+                                                        "openBlade": true,
+                                                        "destinationBlade": {
+                                                            "bladeName": "ResourceMenuBlade",
+                                                            "parameters": {
+                                                                "id": "[variables('appInsightsId')]",
+                                                                "menuid": "performance"
+                                                            },
+                                                            "extensionName": "HubsExtension",
+                                                            "metadata": {},
+                                                            "options": {
+                                                                "parameters": {
+                                                                    "id": "[variables('appInsightsId')]",
+                                                                    "menuid": "performance"
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "isOptional": true
+                                        }
+                                    ],
+                                    "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+                                    "settings": {
+                                        "content": {
+                                            "options": {
+                                                "chart": {
+                                                    "metrics": [
+                                                        {
+                                                            "resourceMetadata": {
+                                                                "id": "[variables('appInsightsId')]"
+                                                            },
+                                                            "name": "requests/count",
+                                                            "aggregationType": 7,
+                                                            "namespace": "microsoft.insights/components",
+                                                            "metricVisualization": {
+                                                                "resourceDisplayName": "[parameters('appInsightsName')]",
+                                                                "color": "#00BCF2"
+                                                            }
+                                                        }
+                                                    ],
+                                                    "title": "Server requests",
+                                                    "visualization": {
+                                                        "chartType": 3,
+                                                        "disablePinning": true
+                                                    },
+                                                    "openBladeOnClick": {
+                                                        "openBlade": true,
+                                                        "destinationBlade": {
+                                                            "bladeName": "ResourceMenuBlade",
+                                                            "parameters": {
+                                                                "id": "[variables('appInsightsId')]",
+                                                                "menuid": "performance"
+                                                            },
+                                                            "extensionName": "HubsExtension",
+                                                            "metadata": {},
+                                                            "options": {
+                                                                "parameters": {
+                                                                    "id": "[variables('appInsightsId')]",
+                                                                    "menuid": "performance"
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "filterCollection": {
+                                                        "filters": []
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "10": {
+                                "position": {
+                                    "x": 5,
+                                    "y": 2,
+                                    "rowSpan": 2,
+                                    "colSpan": 4
+                                },
+                                "metadata": {
+                                    "inputs": [
+                                        {
+                                            "name": "sharedTimeRange",
+                                            "isOptional": true
+                                        },
+                                        {
+                                            "name": "options",
+                                            "value": {
+                                                "chart": {
+                                                    "metrics": [
+                                                        {
+                                                            "resourceMetadata": {
+                                                                "id": "[variables('appInsightsId')]"
+                                                            },
+                                                            "name": "requests/failed",
+                                                            "aggregationType": 7,
+                                                            "namespace": "microsoft.insights/components",
+                                                            "metricVisualization": {
+                                                                "resourceDisplayName": "[parameters('appInsightsName')]",
+                                                                "color": "#EC008C"
+                                                            }
+                                                        }
+                                                    ],
+                                                    "title": "Failed requests",
+                                                    "visualization": {
+                                                        "chartType": 3
+                                                    },
+                                                    "openBladeOnClick": {
+                                                        "openBlade": true,
+                                                        "destinationBlade": {
+                                                            "bladeName": "ResourceMenuBlade",
+                                                            "parameters": {
+                                                                "id": "[variables('appInsightsId')]",
+                                                                "menuid": "failures"
+                                                            },
+                                                            "extensionName": "HubsExtension",
+                                                            "metadata": {},
+                                                            "options": {
+                                                                "parameters": {
+                                                                    "id": "[variables('appInsightsId')]",
+                                                                    "menuid": "failures"
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "isOptional": true
+                                        }
+                                    ],
+                                    "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+                                    "settings": {
+                                        "content": {
+                                            "options": {
+                                                "chart": {
+                                                    "metrics": [
+                                                        {
+                                                            "resourceMetadata": {
+                                                                "id": "[variables('appInsightsId')]"
+                                                            },
+                                                            "name": "requests/failed",
+                                                            "aggregationType": 7,
+                                                            "namespace": "microsoft.insights/components",
+                                                            "metricVisualization": {
+                                                                "resourceDisplayName": "[parameters('appInsightsName')]",
+                                                                "color": "#EC008C"
+                                                            }
+                                                        }
+                                                    ],
+                                                    "title": "Failed requests",
+                                                    "visualization": {
+                                                        "chartType": 3,
+                                                        "disablePinning": true
+                                                    },
+                                                    "openBladeOnClick": {
+                                                        "openBlade": true,
+                                                        "destinationBlade": {
+                                                            "bladeName": "ResourceMenuBlade",
+                                                            "parameters": {
+                                                                "id": "[variables('appInsightsId')]",
+                                                                "menuid": "failures"
+                                                            },
+                                                            "extensionName": "HubsExtension",
+                                                            "metadata": {},
+                                                            "options": {
+                                                                "parameters": {
+                                                                    "id": "[variables('appInsightsId')]",
+                                                                    "menuid": "failures"
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "filterCollection": {
+                                                        "filters": []
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "11": {
+                                "position": {
+                                    "x": 9,
+                                    "y": 3,
+                                    "rowSpan": 3,
+                                    "colSpan": 5
+                                },
+                                "metadata": {
+                                    "inputs": [
+                                        {
+                                            "name": "queryParams",
+                                            "value": {
+                                                "metricQueryId": "cpu",
+                                                "clusterName": "[parameters('clusterName')]",
+                                                "clusterResourceId": "[variables('aksId')]",
+                                                "workspaceResourceId": "[parameters('workspaceId')]",
+                                                "timeRange": {
+                                                    "options": {},
+                                                    "relative": {
+                                                        "duration": 21600000
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "name": "bladeName",
+                                            "value": "InBladeContainerInsightsFrameBlade"
+                                        },
+                                        {
+                                            "name": "extensionName",
+                                            "value": "Microsoft_Azure_Monitoring"
+                                        },
+                                        {
+                                            "name": "bladeParams",
+                                            "value": {
+                                                "containerClusterName": "[parameters('clusterName')]",
+                                                "containerClusterResourceId": "[variables('aksId')]",
+                                                "containerClusterLocation": "eastus",
+                                                "workspaceResourceId": "[parameters('workspaceId')]",
+                                                "initiator": "ManagedClusterAsset.getMenuConfig"
+                                            }
+                                        },
+                                        {
+                                            "name": "defaultOptionPicks",
+                                            "value": [
+                                                {
+                                                    "id": "Avg",
+                                                    "displayName": "Avg",
+                                                    "isSelected": true
+                                                },
+                                                {
+                                                    "id": "Min",
+                                                    "displayName": "Min",
+                                                    "isSelected": false
+                                                },
+                                                {
+                                                    "id": "P50",
+                                                    "displayName": "50th",
+                                                    "isSelected": false
+                                                },
+                                                {
+                                                    "id": "P90",
+                                                    "displayName": "90th",
+                                                    "isSelected": false
+                                                },
+                                                {
+                                                    "id": "P95",
+                                                    "displayName": "95th",
+                                                    "isSelected": false
+                                                },
+                                                {
+                                                    "id": "Max",
+                                                    "displayName": "Max",
+                                                    "isSelected": true
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "name": "showOptionPicker",
+                                            "value": true
+                                        }
+                                    ],
+                                    "type": "Extension/Microsoft_Azure_Monitoring/PartType/ChartPart"
+                                }
+                            },
+                            "12": {
+                                "position": {
+                                    "x": 14,
+                                    "y": 3,
+                                    "rowSpan": 3,
+                                    "colSpan": 5
+                                },
+                                "metadata": {
+                                    "inputs": [
+                                        {
+                                            "name": "queryParams",
+                                            "value": {
+                                                "metricQueryId": "memory",
+                                                "clusterName": "[parameters('clusterName')]",
+                                                "clusterResourceId": "[variables('aksId')]",
+                                                "workspaceResourceId": "[parameters('workspaceId')]",
+                                                "timeRange": {
+                                                    "options": {},
+                                                    "relative": {
+                                                        "duration": 21600000
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "name": "bladeName",
+                                            "value": "InBladeContainerInsightsFrameBlade"
+                                        },
+                                        {
+                                            "name": "extensionName",
+                                            "value": "Microsoft_Azure_Monitoring"
+                                        },
+                                        {
+                                            "name": "bladeParams",
+                                            "value": {
+                                                "containerClusterName": "[parameters('clusterName')]",
+                                                "containerClusterResourceId": "[variables('aksId')]",
+                                                "containerClusterLocation": "eastus",
+                                                "workspaceResourceId": "[parameters('workspaceId')]",
+                                                "initiator": "ManagedClusterAsset.getMenuConfig"
+                                            }
+                                        },
+                                        {
+                                            "name": "defaultOptionPicks",
+                                            "value": [
+                                                {
+                                                    "id": "Avg",
+                                                    "displayName": "Avg",
+                                                    "isSelected": true
+                                                },
+                                                {
+                                                    "id": "Min",
+                                                    "displayName": "Min",
+                                                    "isSelected": false
+                                                },
+                                                {
+                                                    "id": "P50",
+                                                    "displayName": "50th",
+                                                    "isSelected": false
+                                                },
+                                                {
+                                                    "id": "P90",
+                                                    "displayName": "90th",
+                                                    "isSelected": false
+                                                },
+                                                {
+                                                    "id": "P95",
+                                                    "displayName": "95th",
+                                                    "isSelected": false
+                                                },
+                                                {
+                                                    "id": "Max",
+                                                    "displayName": "Max",
+                                                    "isSelected": true
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "name": "showOptionPicker",
+                                            "value": true
+                                        }
+                                    ],
+                                    "type": "Extension/Microsoft_Azure_Monitoring/PartType/ChartPart"
+                                }
+                            },
+                            "13": {
+                                "position": {
+                                    "x": 0,
+                                    "y": 4,
+                                    "rowSpan": 1,
+                                    "colSpan": 8
+                                },
+                                "metadata": {
+                                    "inputs": [],
+                                    "type": "Extension/HubsExtension/PartType/MarkdownPart",
+                                    "settings": {
+                                        "content": {
+                                            "settings": {
+                                                "content": "## Performance",
+                                                "title": "",
+                                                "subtitle": ""
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "14": {
+                                "position": {
+                                    "x": 8,
+                                    "y": 4,
+                                    "rowSpan": 1,
+                                    "colSpan": 1
+                                },
+                                "metadata": {
+                                    "inputs": [
+                                        {
+                                            "name": "ResourceId",
+                                            "value": "[variables('appInsightsId')]"
+                                        }
+                                    ],
+                                    "type": "Extension/AppInsightsExtension/PartType/CuratedBladePerformancePinnedPart",
+                                    "isAdapter": true,
+                                    "asset": {
+                                        "idInputName": "ResourceId",
+                                        "type": "ApplicationInsights"
+                                    }
+                                }
+                            },
+                            "15": {
+                                "position": {
+                                    "x": 0,
+                                    "y": 5,
+                                    "rowSpan": 4,
+                                    "colSpan": 5
+                                },
+                                "metadata": {
+                                    "inputs": [
+                                        {
+                                            "name": "ComponentId",
+                                            "value": {
+                                                "SubscriptionId": "[subscription().subscriptionId]",
+                                                "ResourceGroup": "[resourceGroup().name]",
+                                                "Name": "[parameters('appInsightsName')]",
+                                                "ResourceId": "[variables('appInsightsId')]"
+                                            }
+                                        },
+                                        {
+                                            "name": "Query",
+                                            "value": "let dataset=requests;\ndataset\n| where cloud_RoleName == \"fabrikam-dronescheduler\" \n| summarize \n    requests=sum(itemCount) by performanceBucket\n| render piechart kind=default"
+                                        },
+                                        {
+                                            "name": "TimeRange",
+                                            "value": "P1D"
+                                        },
+                                        {
+                                            "name": "Dimensions",
+                                            "value": {
+                                                "xAxis": {
+                                                    "name": "performanceBucket",
+                                                    "type": "String"
+                                                },
+                                                "yAxis": [
+                                                    {
+                                                        "name": "requests",
+                                                        "type": "Int64"
+                                                    }
+                                                ],
+                                                "splitBy": [],
+                                                "aggregation": "Sum"
+                                            }
+                                        },
+                                        {
+                                            "name": "Version",
+                                            "value": "1.0"
+                                        },
+                                        {
+                                            "name": "PartId",
+                                            "value": "11947e34-790e-4f9c-899d-7bcddc1a4d72"
+                                        },
+                                        {
+                                            "name": "PartTitle",
+                                            "value": "Analytics"
+                                        },
+                                        {
+                                            "name": "PartSubTitle",
+                                            "value": "[parameters('appInsightsName')]"
+                                        },
+                                        {
+                                            "name": "resourceTypeMode",
+                                            "value": "components"
+                                        },
+                                        {
+                                            "name": "ControlType",
+                                            "value": "AnalyticsDonut"
+                                        },
+                                        {
+                                            "name": "DashboardId",
+                                            "isOptional": true
+                                        },
+                                        {
+                                            "name": "SpecificChart",
+                                            "isOptional": true
+                                        }
+                                    ],
+                                    "type": "Extension/AppInsightsExtension/PartType/AnalyticsPart",
+                                    "settings": {
+                                        "content": {
+                                            "PartTitle": "DroneScheduler perf bucket",
+                                            "PartSubTitle": "GET DroneUtilization"
+                                        }
+                                    },
+                                    "asset": {
+                                        "idInputName": "ComponentId",
+                                        "type": "ApplicationInsights"
+                                    }
+                                }
+                            },
+                            "16": {
+                                "position": {
+                                    "x": 5,
+                                    "y": 5,
+                                    "rowSpan": 2,
+                                    "colSpan": 4
+                                },
+                                "metadata": {
+                                    "inputs": [
+                                        {
+                                            "name": "ResourceId",
+                                            "value": "[variables('appInsightsId')]"
+                                        },
+                                        {
+                                            "name": "ComponentId",
+                                            "value": {
+                                                "Name": "[parameters('appInsightsName')]",
+                                                "SubscriptionId": "[subscription().subscriptionId]",
+                                                "ResourceGroup": "[resourceGroup().name]"
+                                            }
+                                        },
+                                        {
+                                            "name": "TargetBlade",
+                                            "value": "Performance"
+                                        },
+                                        {
+                                            "name": "DataModel",
+                                            "value": {
+                                                "version": "1.0.0",
+                                                "experience": 1,
+                                                "percentile": 1,
+                                                "clientTypeMode": "Server",
+                                                "timeContext": {
+                                                    "durationMs": 14400000,
+                                                    "createdTime": "2019-07-23T19:25:23.113Z",
+                                                    "endTime": null
+                                                },
+                                                "prefix": "let OperationIdsWithExceptionType = (excType: string) { exceptions | where timestamp > ago(4h) \n    | where tobool(iff(excType == \"null\", isempty(type), type == excType)) | distinct operation_Id };\nlet OperationIdsWithFailedReqResponseCode = (respCode: string) { requests | where timestamp > ago(4h)\n    | where iff(respCode == \"null\", isempty(resultCode), resultCode == respCode) and success == false | distinct operation_Id };\nlet OperationIdsWithFailedDependencyType = (depType: string) { dependencies | where timestamp > ago(4h)\n    | where iff(depType == \"null\", isempty(type), type == depType) and success == false | distinct operation_Id };\nlet OperationIdsWithFailedDepResponseCode = (respCode: string) { dependencies | where timestamp > ago(4h)\n    | where iff(respCode == \"null\", isempty(resultCode), resultCode == respCode) and success == false | distinct operation_Id };\nlet OperationIdsWithExceptionBrowser = (browser: string) { exceptions | where timestamp > ago(4h) \n    | where tobool(iff(browser == \"null\", isempty(client_Browser), client_Browser == browser)) | distinct operation_Id };",
+                                                "grain": "1m",
+                                                "selectedOperation": {
+                                                    "kind": 1,
+                                                    "operationName": "GET DroneDeliveries/GetDroneUtilization"
+                                                },
+                                                "selectedOperationName": "GET DroneDeliveries/GetDroneUtilization"
+                                            },
+                                            "isOptional": true
+                                        },
+                                        {
+                                            "name": "Version",
+                                            "value": "1.0"
+                                        }
+                                    ],
+                                    "type": "Extension/AppInsightsExtension/PartType/PerformanceCuratedPinnedChartPart",
+                                    "asset": {
+                                        "idInputName": "ResourceId",
+                                        "type": "ApplicationInsights"
+                                    }
+                                }
+                            },
+                            "17": {
+                                "position": {
+                                    "x": 9,
+                                    "y": 6,
+                                    "rowSpan": 1,
+                                    "colSpan": 1
+                                },
+                                "metadata": {
+                                    "inputs": [
+                                        {
+                                            "name": "queryInputs",
+                                            "value": {
+                                                "id": null
+                                            },
+                                            "isOptional": true
+                                        }
+                                    ],
+                                    "type": "Extension/Microsoft_Azure_Monitoring/PartType/AlertsManagementSummaryBladePinnedPart",
+                                    "defaultMenuItemId": "alertsV2"
+                                }
+                            },
+                            "18": {
+                                "position": {
+                                    "x": 10,
+                                    "y": 6,
+                                    "rowSpan": 4,
+                                    "colSpan": 9
+                                },
+                                "metadata": {
+                                    "inputs": [
+                                        {
+                                            "name": "ComponentId",
+                                            "value": {
+                                                "SubscriptionId": "[subscription().subscriptionId]",
+                                                "ResourceGroup": "[resourceGroup().name]",
+                                                "Name": "[parameters('appInsightsName')]",
+                                                "ResourceId": "[variables('appInsightsId')]"
+                                            }
+                                        },
+                                        {
+                                            "name": "Query",
+                                            "value": "let timeGrain=30s;\nlet dataset=dependencies\n| where type == \"Azure DocumentDB\";\ndataset\n| summarize \n    Http429=sumif(itemCount, resultCode == \"429\"), \n    Http200=sumif(itemCount, resultCode == \"200\") by bin(timestamp, timeGrain)\n| render areachart kind=default \n"
+                                        },
+                                        {
+                                            "name": "TimeRange",
+                                            "value": "P1D"
+                                        },
+                                        {
+                                            "name": "Dimensions",
+                                            "value": {
+                                                "xAxis": {
+                                                    "name": "timestamp",
+                                                    "type": "DateTime"
+                                                },
+                                                "yAxis": [
+                                                    {
+                                                        "name": "Http429",
+                                                        "type": "Int64"
+                                                    },
+                                                    {
+                                                        "name": "Http200",
+                                                        "type": "Int64"
+                                                    }
+                                                ],
+                                                "splitBy": [],
+                                                "aggregation": "Sum"
+                                            }
+                                        },
+                                        {
+                                            "name": "Version",
+                                            "value": "1.0"
+                                        },
+                                        {
+                                            "name": "PartId",
+                                            "value": "1e24f001-3d13-4945-9da4-00978030ea31"
+                                        },
+                                        {
+                                            "name": "PartTitle",
+                                            "value": "Analytics"
+                                        },
+                                        {
+                                            "name": "PartSubTitle",
+                                            "value": "[parameters('appInsightsName')]"
+                                        },
+                                        {
+                                            "name": "resourceTypeMode",
+                                            "value": "components"
+                                        },
+                                        {
+                                            "name": "ControlType",
+                                            "value": "AnalyticsChart"
+                                        },
+                                        {
+                                            "name": "SpecificChart",
+                                            "value": "Area"
+                                        },
+                                        {
+                                            "name": "DashboardId",
+                                            "isOptional": true
+                                        }
+                                    ],
+                                    "type": "Extension/AppInsightsExtension/PartType/AnalyticsPart",
+                                    "settings": {
+                                        "content": {
+                                            "PartTitle": "Azure Cosmos DB - Too many requests",
+                                            "PartSubTitle": "GET DroneUtilization",
+                                            "Query": "let timeGrain=30s;\nlet dataset=dependencies\n| where type == \"Azure DocumentDB\";\ndataset\n| summarize \n    Http429=sumif(itemCount, resultCode == \"429\"), \n    Http200=sumif(itemCount, resultCode == \"200\") by bin(timestamp, timeGrain)\n| render areachart\n"
+                                        }
+                                    },
+                                    "asset": {
+                                        "idInputName": "ComponentId",
+                                        "type": "ApplicationInsights"
+                                    }
+                                }
+                            },
+                            "19": {
+                                "position": {
+                                    "x": 0,
+                                    "y": 9,
+                                    "rowSpan": 4,
+                                    "colSpan": 5
+                                },
+                                "metadata": {
+                                    "inputs": [
+                                        {
+                                            "name": "ComponentId",
+                                            "value": {
+                                                "SubscriptionId": "[subscription().subscriptionId]",
+                                                "ResourceGroup": "[resourceGroup().name]",
+                                                "Name": "[parameters('appInsightsName')]",
+                                                "ResourceId": "[variables('appInsightsId')]"
+                                            }
+                                        },
+                                        {
+                                            "name": "Query",
+                                            "value": "let dataset=requests;\ndataset\n| where cloud_RoleName == \"fabrikam-delivery\" \n| summarize \n    requests=sum(itemCount) by performanceBucket\n| render piechart kind=default"
+                                        },
+                                        {
+                                            "name": "TimeRange",
+                                            "value": "P1D"
+                                        },
+                                        {
+                                            "name": "Dimensions",
+                                            "value": {
+                                                "xAxis": {
+                                                    "name": "performanceBucket",
+                                                    "type": "String"
+                                                },
+                                                "yAxis": [
+                                                    {
+                                                        "name": "requests",
+                                                        "type": "Int64"
+                                                    }
+                                                ],
+                                                "splitBy": [],
+                                                "aggregation": "Sum"
+                                            }
+                                        },
+                                        {
+                                            "name": "Version",
+                                            "value": "1.0"
+                                        },
+                                        {
+                                            "name": "PartId",
+                                            "value": "50fbdcc5-3c39-4438-9c6a-fad9261bc0fa"
+                                        },
+                                        {
+                                            "name": "PartTitle",
+                                            "value": "Analytics"
+                                        },
+                                        {
+                                            "name": "PartSubTitle",
+                                            "value": "[parameters('appInsightsName')]"
+                                        },
+                                        {
+                                            "name": "resourceTypeMode",
+                                            "value": "components"
+                                        },
+                                        {
+                                            "name": "ControlType",
+                                            "value": "AnalyticsDonut"
+                                        },
+                                        {
+                                            "name": "DashboardId",
+                                            "isOptional": true
+                                        },
+                                        {
+                                            "name": "SpecificChart",
+                                            "isOptional": true
+                                        }
+                                    ],
+                                    "type": "Extension/AppInsightsExtension/PartType/AnalyticsPart",
+                                    "settings": {
+                                        "content": {
+                                            "PartTitle": "Delivery perf bucket",
+                                            "PartSubTitle": "GET DroneUtilization"
+                                        }
+                                    },
+                                    "asset": {
+                                        "idInputName": "ComponentId",
+                                        "type": "ApplicationInsights"
+                                    }
+                                }
+                            },
+                            "20": {
+                                "position": {
+                                    "x": 5,
+                                    "y": 9,
+                                    "rowSpan": 2,
+                                    "colSpan": 4
+                                },
+                                "metadata": {
+                                    "inputs": [
+                                        {
+                                            "name": "ResourceId",
+                                            "value": "[variables('appInsightsId')]"
+                                        },
+                                        {
+                                            "name": "ComponentId",
+                                            "value": {
+                                                "Name": "[parameters('appInsightsName')]",
+                                                "SubscriptionId": "[subscription().subscriptionId]",
+                                                "ResourceGroup": "[resourceGroup().name]"
+                                            }
+                                        },
+                                        {
+                                            "name": "TargetBlade",
+                                            "value": "Performance"
+                                        },
+                                        {
+                                            "name": "DataModel",
+                                            "value": {
+                                                "version": "1.0.0",
+                                                "experience": 1,
+                                                "percentile": 1,
+                                                "clientTypeMode": "Server",
+                                                "timeContext": {
+                                                    "durationMs": 14400000,
+                                                    "isInitialTime": false,
+                                                    "grain": 1,
+                                                    "useDashboardTimeRange": false,
+                                                    "createdTime": "2019-07-23T19:25:23.113Z",
+                                                    "endTime": null
+                                                },
+                                                "prefix": "let OperationIdsWithExceptionType = (excType: string) { exceptions | where timestamp > ago(4h) \n    | where tobool(iff(excType == \"null\", isempty(type), type == excType)) | distinct operation_Id };\nlet OperationIdsWithFailedReqResponseCode = (respCode: string) { requests | where timestamp > ago(4h)\n    | where iff(respCode == \"null\", isempty(resultCode), resultCode == respCode) and success == false | distinct operation_Id };\nlet OperationIdsWithFailedDependencyType = (depType: string) { dependencies | where timestamp > ago(4h)\n    | where iff(depType == \"null\", isempty(type), type == depType) and success == false | distinct operation_Id };\nlet OperationIdsWithFailedDepResponseCode = (respCode: string) { dependencies | where timestamp > ago(4h)\n    | where iff(respCode == \"null\", isempty(resultCode), resultCode == respCode) and success == false | distinct operation_Id };\nlet OperationIdsWithExceptionBrowser = (browser: string) { exceptions | where timestamp > ago(4h) \n    | where tobool(iff(browser == \"null\", isempty(client_Browser), client_Browser == browser)) | distinct operation_Id };",
+                                                "grain": "1m",
+                                                "selectedOperation": {
+                                                    "kind": 1,
+                                                    "operationName": "GET Deliveries/GetSummary"
+                                                },
+                                                "selectedOperationName": "GET Deliveries/GetSummary"
+                                            },
+                                            "isOptional": true
+                                        },
+                                        {
+                                            "name": "Version",
+                                            "value": "1.0"
+                                        }
+                                    ],
+                                    "type": "Extension/AppInsightsExtension/PartType/PerformanceCuratedPinnedChartPart",
+                                    "asset": {
+                                        "idInputName": "ResourceId",
+                                        "type": "ApplicationInsights"
+                                    }
+                                }
+                            },
+                            "21": {
+                                "position": {
+                                    "x": 10,
+                                    "y": 10,
+                                    "rowSpan": 2,
+                                    "colSpan": 9
+                                },
+                                "metadata": {
+                                    "inputs": [
+                                        {
+                                            "name": "ComponentId",
+                                            "value": {
+                                                "SubscriptionId": "[subscription().subscriptionId]",
+                                                "ResourceGroup": "[resourceGroup().name]",
+                                                "Name": "[parameters('appInsightsName')]",
+                                                "ResourceId": "[variables('appInsightsId')]"
+                                            }
+                                        },
+                                        {
+                                            "name": "Query",
+                                            "value": "let start=datetime(\"2019-07-18T20:59:00.000Z\");\nlet end=datetime(\"2019-07-18T21:10:00.000Z\");\nlet operationNameToEval=\"GET DroneDeliveries/GetDroneUtilization\";\nlet dependencyType=\"Azure DocumentDB\";\nlet customMetricDepSpecific=\"CosmosDb-RequestUnits\";\nlet operationMessage=\"Completed document query\";\nlet dataset=requests\n| where timestamp > start and timestamp < end\n| where success == true\n| where name == operationNameToEval;\ndataset\n| project reqOk=itemCount\n| summarize\n    SuccessRequests=sum(reqOk),\n    TotalNumberOfDepCalls=(toscalar(dependencies\n    | where timestamp > start and timestamp < end\n    | where type == dependencyType\n    | summarize sum(itemCount))),\n    AvgRUChargePerQuery=(toscalar(traces \n| where timestamp > start and timestamp < end\n| where operation_Name == operationNameToEval\n| where message == operationMessage\n| project RUCharge=todouble(customDimensions[\"CosmosDb.RequestCharge\"])\n| summarize avg(RUCharge)))\n| project\n    OperationName=operationNameToEval,\n    DependencyName=dependencyType,\n    SuccessRequests,\n    AverageNumberOfDepCallsPerOperation=(TotalNumberOfDepCalls/SuccessRequests),\n    AverageRUChargePerQuery=AvgRUChargePerQuery,\n    TotalQueryRUCharge=(AvgRUChargePerQuery*SuccessRequests);\n"
+                                        },
+                                        {
+                                            "name": "Version",
+                                            "value": "1.0"
+                                        },
+                                        {
+                                            "name": "PartId",
+                                            "value": "f2f02f3e-baf8-4b76-8565-9415b6b0fd26"
+                                        },
+                                        {
+                                            "name": "PartTitle",
+                                            "value": "Analytics"
+                                        },
+                                        {
+                                            "name": "PartSubTitle",
+                                            "value": "[parameters('appInsightsName')]"
+                                        },
+                                        {
+                                            "name": "resourceTypeMode",
+                                            "value": "components"
+                                        },
+                                        {
+                                            "name": "ControlType",
+                                            "value": "AnalyticsGrid"
+                                        },
+                                        {
+                                            "name": "Dimensions",
+                                            "isOptional": true
+                                        },
+                                        {
+                                            "name": "TimeRange",
+                                            "isOptional": true
+                                        },
+                                        {
+                                            "name": "DashboardId",
+                                            "isOptional": true
+                                        },
+                                        {
+                                            "name": "SpecificChart",
+                                            "isOptional": true
+                                        }
+                                    ],
+                                    "type": "Extension/AppInsightsExtension/PartType/AnalyticsPart",
+                                    "settings": {
+                                        "content": {
+                                            "PartTitle": "Cosmos DB Invoicing Analytics",
+                                            "PartSubTitle": "GET DroneUtilization",
+                                            "Query": "let operationNameToEval=\"GET DroneDeliveries/GetDroneUtilization\";\nlet dependencyType=\"Azure DocumentDB\";\nlet customMetricDepSpecific=\"CosmosDb-RequestUnits\";\nlet operationMessage=\"Completed document query\";\nlet dataset=requests\n| where success == true\n| where name == operationNameToEval;\ndataset\n| project reqOk=itemCount\n| summarize\n    SuccessRequests=sum(reqOk),\n    TotalNumberOfDepCalls=(toscalar(dependencies\n    | where type == dependencyType\n    | summarize sum(itemCount))),\n    AvgRUChargePerQuery=(toscalar(traces \n| where operation_Name == operationNameToEval\n| where message == operationMessage\n| project RUCharge=todouble(customDimensions[\"CosmosDb.RequestCharge\"])\n| summarize avg(RUCharge)))\n| project\n    SuccessRequests,\n    AverageNumberOfDepCallsPerOperation=(TotalNumberOfDepCalls/SuccessRequests),\n    AverageRUChargePerQuery=AvgRUChargePerQuery,\n    TotalQueryRUCharge=(AvgRUChargePerQuery*SuccessRequests);\n"
+                                        }
+                                    },
+                                    "asset": {
+                                        "idInputName": "ComponentId",
+                                        "type": "ApplicationInsights"
+                                    }
+                                }
+                            },
+                            "22": {
+                                "position": {
+                                    "x": 10,
+                                    "y": 12,
+                                    "rowSpan": 3,
+                                    "colSpan": 9
+                                },
+                                "metadata": {
+                                    "inputs": [
+                                        {
+                                            "name": "sharedTimeRange",
+                                            "isOptional": true
+                                        },
+                                        {
+                                            "name": "options",
+                                            "value": {
+                                                "chart": {
+                                                    "metrics": [
+                                                        {
+                                                            "resourceMetadata": {
+                                                                "id": "[variables('droneSchedulerCosmosDbId')]"
+                                                            },
+                                                            "name": "TotalRequestUnits",
+                                                            "aggregationType": 1,
+                                                            "namespace": "microsoft.documentdb/databaseaccounts",
+                                                            "metricVisualization": {
+                                                                "displayName": "Total Request Units"
+                                                            }
+                                                        }
+                                                    ],
+                                                    "title": "Sum Total Request Units DroneUtilization",
+                                                    "visualization": {
+                                                        "chartType": 2,
+                                                        "legendVisualization": {
+                                                            "isVisible": true,
+                                                            "position": 2,
+                                                            "hideSubtitle": false
+                                                        },
+                                                        "axisVisualization": {
+                                                            "x": {
+                                                                "isVisible": true,
+                                                                "axisType": 2
+                                                            },
+                                                            "y": {
+                                                                "isVisible": true,
+                                                                "axisType": 1
+                                                            }
+                                                        }
+                                                    },
+                                                    "filterCollection": {
+                                                        "filters": [
+                                                            {
+                                                                "key": "CollectionName",
+                                                                "operator": 0,
+                                                                "values": [
+                                                                    "utilization-sp"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                "version": 2
+                                            },
+                                            "isOptional": true
+                                        }
+                                    ],
+                                    "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+                                    "settings": {
+                                        "content": {
+                                            "options": {
+                                                "chart": {
+                                                    "metrics": [
+                                                        {
+                                                            "resourceMetadata": {
+                                                                "id": "[variables('droneSchedulerCosmosDbId')]"
+                                                            },
+                                                            "name": "TotalRequestUnits",
+                                                            "aggregationType": 1,
+                                                            "namespace": "microsoft.documentdb/databaseaccounts",
+                                                            "metricVisualization": {
+                                                                "displayName": "Total Request Units"
+                                                            }
+                                                        }
+                                                    ],
+                                                    "title": "Sum Total Request Units DroneUtilization",
+                                                    "visualization": {
+                                                        "chartType": 2,
+                                                        "legendVisualization": {
+                                                            "isVisible": true,
+                                                            "position": 2,
+                                                            "hideSubtitle": false
+                                                        },
+                                                        "axisVisualization": {
+                                                            "x": {
+                                                                "isVisible": true,
+                                                                "axisType": 2
+                                                            },
+                                                            "y": {
+                                                                "isVisible": true,
+                                                                "axisType": 1
+                                                            }
+                                                        },
+                                                        "disablePinning": true
+                                                    },
+                                                    "filterCollection": {
+                                                        "filters": [
+                                                            {
+                                                                "key": "CollectionName",
+                                                                "operator": 0,
+                                                                "values": [
+                                                                    "utilization-sp"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                "version": 2
+                                            }
+                                        }
+                                    },
+                                    "filters": {
+                                        "CollectionName": {
+                                            "model": {
+                                                "operator": "equals",
+                                                "values": [
+                                                    "utilization-sp"
+                                                ]
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "23": {
+                                "position": {
+                                    "x": 0,
+                                    "y": 13,
+                                    "rowSpan": 4,
+                                    "colSpan": 5
+                                },
+                                "metadata": {
+                                    "inputs": [
+                                        {
+                                            "name": "ComponentId",
+                                            "value": {
+                                                "SubscriptionId": "[subscription().subscriptionId]",
+                                                "ResourceGroup": "[resourceGroup().name]",
+                                                "Name": "[parameters('appInsightsName')]",
+                                                "ResourceId": "[variables('appInsightsId')]"
+                                            }
+                                        },
+                                        {
+                                            "name": "Query",
+                                            "value": "let dataset=requests;\ndataset\n| where cloud_RoleName == \"fabrikam-package\" \n| summarize \n    requests=sum(itemCount) by performanceBucket\n| render piechart kind=default"
+                                        },
+                                        {
+                                            "name": "TimeRange",
+                                            "value": "P1D"
+                                        },
+                                        {
+                                            "name": "Dimensions",
+                                            "value": {
+                                                "xAxis": {
+                                                    "name": "performanceBucket",
+                                                    "type": "String"
+                                                },
+                                                "yAxis": [
+                                                    {
+                                                        "name": "requests",
+                                                        "type": "Int64"
+                                                    }
+                                                ],
+                                                "splitBy": [],
+                                                "aggregation": "Sum"
+                                            }
+                                        },
+                                        {
+                                            "name": "Version",
+                                            "value": "1.0"
+                                        },
+                                        {
+                                            "name": "PartId",
+                                            "value": "c13e752e-6c2e-4c9a-9199-410e2ecd844c"
+                                        },
+                                        {
+                                            "name": "PartTitle",
+                                            "value": "Analytics"
+                                        },
+                                        {
+                                            "name": "PartSubTitle",
+                                            "value": "[parameters('appInsightsName')]"
+                                        },
+                                        {
+                                            "name": "resourceTypeMode",
+                                            "value": "components"
+                                        },
+                                        {
+                                            "name": "ControlType",
+                                            "value": "AnalyticsDonut"
+                                        },
+                                        {
+                                            "name": "DashboardId",
+                                            "isOptional": true
+                                        },
+                                        {
+                                            "name": "SpecificChart",
+                                            "isOptional": true
+                                        }
+                                    ],
+                                    "type": "Extension/AppInsightsExtension/PartType/AnalyticsPart",
+                                    "settings": {
+                                        "content": {
+                                            "PartTitle": "Package perf bucket",
+                                            "PartSubTitle": "GET DroneUtilization"
+                                        }
+                                    },
+                                    "asset": {
+                                        "idInputName": "ComponentId",
+                                        "type": "ApplicationInsights"
+                                    }
+                                }
+                            },
+                            "24": {
+                                "position": {
+                                    "x": 5,
+                                    "y": 13,
+                                    "rowSpan": 2,
+                                    "colSpan": 4
+                                },
+                                "metadata": {
+                                    "inputs": [
+                                        {
+                                            "name": "ResourceId",
+                                            "value": "[variables('appInsightsId')]"
+                                        },
+                                        {
+                                            "name": "ComponentId",
+                                            "value": {
+                                                "Name": "[parameters('appInsightsName')]",
+                                                "SubscriptionId": "[subscription().subscriptionId]",
+                                                "ResourceGroup": "[resourceGroup().name]"
+                                            }
+                                        },
+                                        {
+                                            "name": "TargetBlade",
+                                            "value": "Performance"
+                                        },
+                                        {
+                                            "name": "DataModel",
+                                            "value": {
+                                                "version": "1.0.0",
+                                                "experience": 1,
+                                                "percentile": 1,
+                                                "clientTypeMode": "Server",
+                                                "timeContext": {
+                                                    "durationMs": 14400000,
+                                                    "isInitialTime": false,
+                                                    "grain": 1,
+                                                    "useDashboardTimeRange": false,
+                                                    "createdTime": "2019-07-23T19:25:23.113Z",
+                                                    "endTime": null
+                                                },
+                                                "prefix": "let OperationIdsWithExceptionType = (excType: string) { exceptions | where timestamp > ago(4h) \n    | where tobool(iff(excType == \"null\", isempty(type), type == excType)) | distinct operation_Id };\nlet OperationIdsWithFailedReqResponseCode = (respCode: string) { requests | where timestamp > ago(4h)\n    | where iff(respCode == \"null\", isempty(resultCode), resultCode == respCode) and success == false | distinct operation_Id };\nlet OperationIdsWithFailedDependencyType = (depType: string) { dependencies | where timestamp > ago(4h)\n    | where iff(depType == \"null\", isempty(type), type == depType) and success == false | distinct operation_Id };\nlet OperationIdsWithFailedDepResponseCode = (respCode: string) { dependencies | where timestamp > ago(4h)\n    | where iff(respCode == \"null\", isempty(resultCode), resultCode == respCode) and success == false | distinct operation_Id };\nlet OperationIdsWithExceptionBrowser = (browser: string) { exceptions | where timestamp > ago(4h) \n    | where tobool(iff(browser == \"null\", isempty(client_Browser), client_Browser == browser)) | distinct operation_Id };",
+                                                "grain": "1m",
+                                                "selectedOperation": {
+                                                    "kind": 1,
+                                                    "operationName": "GET /api/packages/summary"
+                                                },
+                                                "selectedOperationName": "GET /api/packages/summary"
+                                            },
+                                            "isOptional": true
+                                        },
+                                        {
+                                            "name": "Version",
+                                            "value": "1.0"
+                                        }
+                                    ],
+                                    "type": "Extension/AppInsightsExtension/PartType/PerformanceCuratedPinnedChartPart",
+                                    "asset": {
+                                        "idInputName": "ResourceId",
+                                        "type": "ApplicationInsights"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "metadata": {
+                    "model": {
+                        "timeRange": {
+                            "value": {
+                                "relative": {
+                                    "duration": 24,
+                                    "timeUnit": 1
+                                }
+                            },
+                            "type": "MsPortalFx.Composition.Configuration.ValueTypes.TimeRange"
+                        },
+                        "filterLocale": {
+                            "value": "en-us"
+                        },
+                        "filters": {
+                            "value": {
+                                "MsPortalFx_TimeRange": {
+                                    "model": {
+                                        "format": "utc",
+                                        "granularity": "auto",
+                                        "relative": "30m"
+                                    },
+                                    "displayCache": {
+                                        "name": "UTC Time",
+                                        "value": "Past 30 minutes"
+                                    },
+                                    "filteredPartIds": []
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}

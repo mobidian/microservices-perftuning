@@ -91,6 +91,20 @@ helm install ./charts/invoice/ \
 helm status invoice-v0.1.0-dev
 ```
 
+### Deploy Monitoring Dashboard
+```bash
+# export workspace id
+export WORKSPACE_ID=$(az resource list -l $LOCATION --resource-type "Microsoft.OperationalInsights/workspaces" --query "[?contains(name,'DefaultWorkspace')].id" -o tsv)
+
+az group deployment create \
+   -g $RESOURCE_GROUP \
+   --template-file azuredeploy.json \
+   --parameters workspaceId=$WORKSPACE_ID \
+                clusterName=$CLUSTER_NAME \
+                appInsightsName=$AI_NAME \
+                droneSchedulerCosmosDbName=$DRONESCHEDULER_COSMOSDB_NAME
+```
+
 ### Setup access for current user to change values in the drone scheduler configuration key vault
 
 ```bash
